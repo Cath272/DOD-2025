@@ -12,6 +12,7 @@
 #define SDL_MAIN_USE_CALLBACKS 1  /* use the callbacks instead of main() */
 #include <SDL3/SDL.h>
 #include <SDL3/SDL_main.h>
+#include <stdio.h>
 
 static SDL_Window* window = NULL;
 static SDL_Renderer* renderer = NULL;
@@ -54,10 +55,14 @@ SDL_AppResult SDL_AppIterate(void* appstate)
     float x, y;
     const float scale = 4.0f;
 
-    rectangle.w = 50;
-    rectangle.h = 50;
-    rectangle.x = (w / scale) - (rectangle.w)/ 2;
-    rectangle.y = (h / scale) - (rectangle.h)/ 2;
+
+    int ScreenWidth;
+    int ScreenHeight;
+    SDL_GetWindowSize(window, &ScreenWidth, &ScreenHeight);
+
+
+    
+
 
     /* Center the message and scale it up */
     SDL_GetRenderOutputSize(renderer, &w, &h);
@@ -65,12 +70,24 @@ SDL_AppResult SDL_AppIterate(void* appstate)
     x = ((w / scale) - SDL_DEBUG_TEXT_FONT_CHARACTER_SIZE * SDL_strlen(message)) / 2;
     y = ((h / scale) - SDL_DEBUG_TEXT_FONT_CHARACTER_SIZE) / 2;
 
+    //printf("%d %d \n", ScreenHeight, ScreenWidth);
+
+    rectangle.w = 100;
+    rectangle.h = 50;
+    rectangle.x = ((w / scale) - rectangle.w) / 2;//(ScreenWidth  - (rectangle.w))/ 2;
+    rectangle.y = ((h / scale) - rectangle.h) / 2; //(ScreenHeight - (rectangle.h)) / 2;
+
+    printf(" Rectangle coord x: %f y: %f \n", rectangle.x, rectangle.y);
+    printf("Text coord x:%f y:%f \n", x, y);
+
+
     /* Draw the message */
     SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
     SDL_RenderClear(renderer);
+    SDL_SetRenderDrawColor(renderer, 191, 64, 191, 255);
+    SDL_RenderFillRect(renderer, &rectangle);
     SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
     SDL_RenderDebugText(renderer, x, y, message);
-    SDL_RenderRect(renderer, &rectangle);
     SDL_RenderPresent(renderer);
 
     return SDL_APP_CONTINUE;
