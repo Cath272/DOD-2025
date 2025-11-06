@@ -4,6 +4,7 @@
 #include <SDL3/SDL_main.h>
 #include <SDL3/SDL_surface.h>
 #include <stdio.h>
+#include <inttypes.h>
 
 static SDL_Window* window = NULL;
 static SDL_Renderer* renderer = NULL;
@@ -26,9 +27,9 @@ SDL_FRect rectangle;
 
 
 
-float xEntity[100000], yEntity[100000];
-float wEntity[100000], hEntity[100000];
-Uint8 entityTexture[100000];
+float xEntity[10000], yEntity[10000];
+float wEntity[10000], hEntity[10000];
+Uint8 entityTexture[10000];
 
 
 
@@ -170,9 +171,9 @@ SDL_AppResult SDL_AppInit(void** appstate, int argc, char* argv[])
         return SDL_APP_FAILURE;
     }
 
-    for (int i = 0; i < 100000; i++) {
-        xEntity[i] = (float)SDL_rand(10000) - 5000;
-        yEntity[i] = (float)SDL_rand(10000) - 5000;
+    for (int i = 0; i < 10000; i++) {
+        xEntity[i] = (float)SDL_rand(1000) - 500;
+        yEntity[i] = (float)SDL_rand(1000) - 500;
         entityTexture[i] = SDL_rand(3) + 1;
         //printf("x:%f y:%f entitytexture:%d \n", xEntity[i], yEntity[i], entityTexture[i]);
     }
@@ -210,7 +211,7 @@ SDL_AppResult SDL_AppIterate(void* appstate)
 
     char* posText = NULL;
     totalFrames++;
-    Uint32 startTicks = SDL_GetTicks();
+    Uint64 startTicks = SDL_GetTicks();
     Uint64 startPerf = SDL_GetPerformanceCounter();
 
 
@@ -256,7 +257,7 @@ SDL_AppResult SDL_AppIterate(void* appstate)
         renderObject(textures[1], 0.2f, 400.0f, 250.0f, textures[1].texture_width, textures[1].texture_height);
         renderObject(textures[2], 0.2f, 600.0f, 250.0f, textures[2].texture_width, textures[2].texture_height);
 
-    for (int i = 0; i < 100000; i++) {
+    for (int i = 0; i < 10000; i++) {
         renderObject(textures[entityTexture[i]], 0.2f, xEntity[i], yEntity[i], textures[entityTexture[i]].texture_width, textures[entityTexture[i]].texture_height);
     }
 
@@ -276,21 +277,32 @@ SDL_AppResult SDL_AppIterate(void* appstate)
     Uint64 framePerf = endPerf - startPerf;
     float frameTime = (endTicks - startTicks) / 1000.0f;
     totalFrameTicks += endTicks - startTicks;
+    //To implement avg time based on current second frame
 
     // Strings to display
-    //char* fps, avg, perf;
-    //SDL_asprintf(&fps, "Current FPS: %f",  (1.0f / frameTime));
-    //SDL_asprintf(&avg, "Average FPS: %f",  (1000.0f / ((float)totalFrameTicks / totalFrames)));
-    //SDL_asprintf(&perf, "Current Perf: %f",  framePerf);
+    char* fps;
+    char* avg = NULL;
+    char* perf = NULL;
+    float ff = (float)totalFrameTicks / totalFrames;
+    SDL_asprintf(&fps, "Current FPS: %f",  (1.0f / frameTime));
+    SDL_asprintf(&avg, "Average FPS: %f",  (1000.0f / ((float)totalFrameTicks / totalFrames)));
+    SDL_asprintf(&perf, "Current Perf: %" PRIu64 , framePerf);
+
+    
+
 
 
     //// Display strings
-    //SDL_Rect dest = { 10, 10, 0, 0 };
-    //renderText(dest.x, dest.y, fps, 255, 255, 255, 255);
-    //dest.y += 24;
-    //renderText(dest.x, dest.y, avg, 255, 255, 255, 255);
-    //dest.y += 24;
-    //renderText(dest.x, dest.y, perf, 255, 255, 255, 255);
+    SDL_Rect dest = { 10, 10, 0, 0 };
+    renderText(dest.x, dest.y, fps, 255, 255, 255, 255);
+    dest.y += 24;
+    renderText(dest.x, dest.y, avg, 255, 255, 255, 255);
+    dest.y += 24;
+    renderText(dest.x, dest.y, perf, 255, 255, 255, 255);
+
+    /*SDL_free(fps);
+    SDL_free(avg);
+    SDL_free(perf);*/
 
     SDL_RenderPresent(renderer);
 
