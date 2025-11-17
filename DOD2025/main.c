@@ -19,6 +19,10 @@ float playerPosX = 0.0f;
 
 Uint32 totalFrameTicks = 0;
 Uint32 totalFrames = 0;
+Uint32 totalSecondFrames = 0;
+Uint32 lastframeavg;
+
+bool moveUp, runUp, moveDown, runDown, moveLeft, runLeft, moveRight, runRight;
 
 
 //Screen size for windowed mode
@@ -27,15 +31,14 @@ Uint32 totalFrames = 0;
 
 SDL_FRect rectangle;
 
-#define SIZE 10000
-#define SPAWN_SIZE 10000
+#define SIZE 50000
+#define SPAWN_SIZE 50000
 
 
 
 
 float xEntity[SIZE], yEntity[SIZE];
-float wEntity[SIZE], hEntity[SIZE];
-Uint8 entityTexture[SIZE];
+int entityTexture[SIZE];
 
 
 
@@ -57,52 +60,99 @@ struct Complex_textures textures[4];
 void updatePos(){
     const bool* key_states = SDL_GetKeyboardState(NULL);
     bool stopUp = 0;
+    bool stopDown = 0;
+    bool stopRight = 0;
+    bool stopLeft = 0;
+
+    moveUp = 0;
+    runUp = 0;
+    moveDown = 0;
+    runDown = 0;
+    moveRight = 0;
+    runRight = 0;
+    moveLeft = 0;
+    runLeft = 0;
+
+
 
     for (int i = 0; i < SIZE; i++) {
         //doamne fereste
-        if (playerPosY >= yEntity[i]+ world.yPos +textures[entityTexture[i]].texture_height && playerPosX + textures[2].texture_width <= xEntity[i] + world.xPos && playerPosX >= xEntity[i] + world.xPos + textures[entityTexture[i]].texture_width) {
+        if (playerPosY <= yEntity[i]+ world.yPos +textures[entityTexture[i]].texture_height +5.0f && playerPosY + textures[2].texture_width >= yEntity[i] + world.yPos && (playerPosX + textures[2].texture_width >= xEntity[i] + world.xPos && playerPosX<= xEntity[i] + world.xPos + textures[entityTexture[i]].texture_width)) {
             stopUp = 1;
+        }
+
+        if (playerPosY + textures[2].texture_width + 7.0f >= yEntity[i]+ world.yPos  && playerPosY  <= yEntity[i] + world.yPos + textures[entityTexture[i]].texture_height  && (playerPosX + textures[2].texture_width >= xEntity[i] + world.xPos && playerPosX <= xEntity[i] + world.xPos + textures[entityTexture[i]].texture_width)) {
+            stopDown = 1;
         }
     }
 
     
     if (key_states[SDL_SCANCODE_W] && !stopUp) {
         if (key_states[SDL_SCANCODE_LSHIFT]) {
-            world.yPos += +4.0f;
+            runUp = 1;
         }
         else {
-            world.yPos += +2.0f;
+            moveUp = 1;
         }
     }
 
-    if (key_states[SDL_SCANCODE_S]) {
+    if (key_states[SDL_SCANCODE_S] && !stopDown) {
         if (key_states[SDL_SCANCODE_LSHIFT]) {
-            world.yPos += -4.0f;
+            runDown = 1;
         }
         else {
-            world.yPos += -2.0f;
-        }
+            moveDown = 1;
 
-    }
-
-    if (key_states[SDL_SCANCODE_D]) {
-        if (key_states[SDL_SCANCODE_LSHIFT]) {
-            world.xPos += -4.0f;
-        }
-        else {
-            world.xPos += -2.0f;
         }
 
     }
 
-    if (key_states[SDL_SCANCODE_A]) {
+    if (key_states[SDL_SCANCODE_D] && !stopRight) {
         if (key_states[SDL_SCANCODE_LSHIFT]) {
-            world.xPos += +4.0f;
+            runRight = 1;
         }
         else {
-            world.xPos += +2.0f;
+            moveRight = 1;
         }
 
+    }
+
+    if (key_states[SDL_SCANCODE_A] && !stopLeft) {
+        if (key_states[SDL_SCANCODE_LSHIFT]) {
+            runLeft = 1;
+        }
+        else {
+            moveLeft = 1;
+        }
+
+    }
+
+    if (moveUp) {
+        world.yPos += +5.0f;
+    }
+    else if (runUp) {
+        world.yPos += +10.0f;
+    }
+
+    if (moveDown) {
+        world.yPos += -5.0f;
+    }
+    else if (runDown) {
+        world.yPos += -10.0f;
+    }
+
+    if (moveRight) {
+        world.xPos += -5.0f;
+    }
+    else if (runRight) {
+        world.xPos += -10.0f;
+    }
+
+    if (moveLeft) {
+        world.xPos += +5.0f;
+    }
+    else if (runLeft) {
+        world.xPos += +10.0f;
     }
     
 };
@@ -130,7 +180,6 @@ struct Complex_textures loadTexture( char* textureName) {
         texture_local.texture_height = surface->h;
     }
    
-
     //printf("%d %d ", texture_local.texture_width, texture_local.texture_height);
 
     
@@ -188,7 +237,7 @@ SDL_AppResult SDL_AppInit(void** appstate, int argc, char* argv[])
     for (int i = 0; i < SIZE; i++) {
         xEntity[i] = (float)SDL_rand(SPAWN_SIZE) - SPAWN_SIZE/2;
         yEntity[i] = (float)SDL_rand(SPAWN_SIZE) - SPAWN_SIZE / 2;
-        entityTexture[i] = SDL_rand(3) + 1;
+        entityTexture[i] = SDL_rand(3) ;
         //printf("x:%f y:%f entitytexture:%d \n", xEntity[i], yEntity[i], entityTexture[i]);
     }
 
@@ -219,57 +268,6 @@ SDL_AppResult SDL_AppEvent(void* appstate, SDL_Event* event)
     return SDL_APP_CONTINUE;
 }
 
-bool checkCollision(float playerX, float playerY, float playerWidth, float playerHeight, float objX, float objY, float objWidth, float objHeight)
-{
-
-    /*
-    * The lines don't do anything anymore
-    * //The sides of the rectangles
-    int leftA, leftB;
-    int rightA, rightB;
-    int topA, topB;
-    int bottomA, bottomB;
-
-    //Calculate the sides of rect A
-    leftA = playerX;
-    rightA = playerX +playerWidth;
-    topA = playerY;
-    bottomA = playerY + playerHeight;
-
-    //Calculate the sides of rect B
-    leftB = objX;
-    rightB = objX + objWidth;
-    topB = objY;
-    bottomB = objY + objHeight;
-    */
-    
-
-    
-
-     //If any of the sides from A are outside of B
-     if (playerY + playerHeight <= objY)
-     {
-            return false;
-     }
-
-    if (playerY >= objY + objHeight)
-    {
-        return false;
-    }
-
-    if (playerX + playerWidth <= objX)
-    {
-        return false;
-    }
-
-    if (playerX >= objX + objWidth)
-    {
-        return false;
-    }
-
-    //If none of the sides from A are outside B
-    return true;
-}
 
 
 
@@ -280,6 +278,7 @@ SDL_AppResult SDL_AppIterate(void* appstate)
 
     char* posText = NULL;
     totalFrames++;
+    totalSecondFrames++;
     Uint64 startTicks = SDL_GetTicks();
     Uint64 startPerf = SDL_GetPerformanceCounter();
 
@@ -300,6 +299,7 @@ SDL_AppResult SDL_AppIterate(void* appstate)
 
     for (int i = 0; i < SIZE; i++) {
         renderObject(textures[entityTexture[i]], 0.2f, xEntity[i], yEntity[i], textures[entityTexture[i]].texture_width, textures[entityTexture[i]].texture_height);
+       
     }
 
     
@@ -315,23 +315,39 @@ SDL_AppResult SDL_AppIterate(void* appstate)
    
     
     updatePos();
-    //printf("\nxpos:%f ypos:%f", world.xPos, world.yPos);
     renderPlayer(textures[2], 0.2f);
 
     Uint32 endTicks = SDL_GetTicks();
     Uint64 endPerf = SDL_GetPerformanceCounter();
     Uint64 framePerf = endPerf - startPerf;
     float frameTime = (endTicks - startTicks) / 1000.0f;
-    totalFrameTicks += endTicks - startTicks;
+    
+    if (totalFrameTicks > 1000.0f) {
+        lastframeavg = (1000.0f / ((float)totalFrameTicks / totalSecondFrames));
+        totalFrameTicks = 0.0f;
+        totalSecondFrames = 0.0f;
+    }
+    else {
+        totalFrameTicks += endTicks - startTicks;
+    }
    
 
     // Strings to display
     char* fps;
     char* avg = NULL;
+    char* min= NULL;
     char* perf = NULL;
     float ff = (float)totalFrameTicks / totalFrames;
     SDL_asprintf(&fps, "Current FPS: %f",  (1.0f / frameTime));
-    SDL_asprintf(&avg, "Average FPS: %f",  (1000.0f / ((float)totalFrameTicks / totalFrames)));
+    
+    if (totalSecondFrames == 0) {
+        SDL_asprintf(&avg, "Average FPS: %f", (float)lastframeavg);
+    }
+    else {
+        SDL_asprintf(&avg, "Average FPS: %f", (1000.0f / ((float)totalFrameTicks / totalSecondFrames)));
+    }
+
+
     SDL_asprintf(&perf, "Current Perf: %" PRIu64 , framePerf);
 
     
