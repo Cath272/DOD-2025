@@ -81,8 +81,17 @@ void updatePos(){
             stopUp = 1;
         }
 
-        if (playerPosY + textures[2].texture_width + 7.0f >= yEntity[i]+ world.yPos  && playerPosY  <= yEntity[i] + world.yPos + textures[entityTexture[i]].texture_height  && (playerPosX + textures[2].texture_width >= xEntity[i] + world.xPos && playerPosX <= xEntity[i] + world.xPos + textures[entityTexture[i]].texture_width)) {
+        if (playerPosY + textures[2].texture_width + 15.0f >= yEntity[i]+ world.yPos  && playerPosY  <= yEntity[i] + world.yPos + textures[entityTexture[i]].texture_height  && (playerPosX + textures[2].texture_width >= xEntity[i] + world.xPos && playerPosX <= xEntity[i] + world.xPos + textures[entityTexture[i]].texture_width)) {
             stopDown = 1;
+        }
+
+
+        if (playerPosY <= yEntity[i] + world.yPos + textures[entityTexture[i]].texture_height  && playerPosY + textures[2].texture_width >= yEntity[i] + world.yPos && (playerPosX + textures[2].texture_width +10.0f>= xEntity[i] + world.xPos && playerPosX <= xEntity[i] + world.xPos + textures[entityTexture[i]].texture_width)) {
+            stopRight = 1;
+        }
+
+        if (playerPosY <= yEntity[i] + world.yPos + textures[entityTexture[i]].texture_height && playerPosY + textures[2].texture_width >= yEntity[i] + world.yPos && (playerPosX -10.0f  <= xEntity[i] + world.xPos + textures[entityTexture[i]].texture_width && playerPosX + textures[2].texture_width >= xEntity[i] + world.xPos )) {
+            stopLeft = 1;
         }
     }
 
