@@ -3,6 +3,9 @@
 ##
 ## Get latest from https://github.com/github/gitignore/blob/main/VisualStudio.gitignore
 
+
+#DOD2025/thirdparty/SDL3-3.3.2
+
 # User-specific files
 *.rsuser
 *.suo
