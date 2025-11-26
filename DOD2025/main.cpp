@@ -20,7 +20,7 @@ float playerPosX = 0.0f;
 Uint32 totalFrameTicks = 0;
 Uint32 totalFrames = 0;
 Uint32 totalSecondFrames = 0;
-Uint32 lastframeavg;
+Uint32 lastframeavg = 0;
 
 bool moveUp, runUp, moveDown, runDown, moveLeft, runLeft, moveRight, runRight;
 
@@ -31,10 +31,16 @@ bool moveUp, runUp, moveDown, runDown, moveLeft, runLeft, moveRight, runRight;
 
 SDL_FRect rectangle;
 
-#define SIZE 50000
+#define SIZE 10000
 #define SPAWN_SIZE 50000
 
+class Entity {
+    int entityTexture;
+    float xEntity;
+    float yEntity;
+};
 
+bool oop = 0;
 
 
 float xEntity[SIZE], yEntity[SIZE];
@@ -77,7 +83,7 @@ void updatePos(){
 
     for (int i = 0; i < SIZE; i++) {
         //doamne fereste
-        if (playerPosY <= yEntity[i]+ world.yPos +textures[entityTexture[i]].texture_height +5.0f && playerPosY + textures[2].texture_width >= yEntity[i] + world.yPos && (playerPosX + textures[2].texture_width >= xEntity[i] + world.xPos && playerPosX<= xEntity[i] + world.xPos + textures[entityTexture[i]].texture_width)) {
+        if (playerPosY <= yEntity[i]+ world.yPos +textures[entityTexture[i]].texture_height +15.0f && playerPosY + textures[2].texture_width >= yEntity[i] + world.yPos && (playerPosX + textures[2].texture_width >= xEntity[i] + world.xPos && playerPosX<= xEntity[i] + world.xPos + textures[entityTexture[i]].texture_width)) {
             stopUp = 1;
         }
 
@@ -169,7 +175,7 @@ void updatePos(){
 
 
 
-struct Complex_textures loadTexture( char* textureName) {
+struct Complex_textures loadTexture( const char* textureName) {
     struct Complex_textures texture_local;
     SDL_Surface* surface = NULL;
     char* png_path = NULL;
