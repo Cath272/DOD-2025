@@ -13,10 +13,33 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
+    <Filter Include="box2D">
+      <UniqueIdentifier>{f9d2efa8-a8b7-4d1c-b7ec-9c9fa40bf5bb}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="thirdparty\box2d-3.1.1\include\box2d\base.h">
+      <Filter>box2D</Filter>
+    </ClInclude>
+    <ClInclude Include="thirdparty\box2d-3.1.1\include\box2d\box2d.h">
+      <Filter>box2D</Filter>
+    </ClInclude>
+    <ClInclude Include="thirdparty\box2d-3.1.1\include\box2d\collision.h">
+      <Filter>box2D</Filter>
+    </ClInclude>
+    <ClInclude Include="thirdparty\box2d-3.1.1\include\box2d\id.h">
+      <Filter>box2D</Filter>
+    </ClInclude>
+    <ClInclude Include="thirdparty\box2d-3.1.1\include\box2d\math_functions.h">
+      <Filter>box2D</Filter>
+    </ClInclude>
+    <ClInclude Include="thirdparty\box2d-3.1.1\include\box2d\types.h">
+      <Filter>box2D</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>
