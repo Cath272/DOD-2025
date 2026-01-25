@@ -18,7 +18,7 @@
 
 
 
-b2WorldDef worldDef = b2DefaultWorldDef();
+//b2WorldDef worldDef = b2DefaultWorldDef();
 
 
 static SDL_Window* window = NULL;
@@ -29,6 +29,12 @@ static SDL_Renderer* renderer = NULL;
 int w = 0, h = 0;
 float scale = 2.0f;
 float renderScale = 2.0f;
+
+bool changedscale1 = false;
+bool changedscale2 = false;
+bool changedscale3 = false;
+
+
 
 
 float playerPosY = 0.0f;
@@ -49,14 +55,10 @@ bool moveUp, runUp, moveDown, runDown, moveLeft, runLeft, moveRight, runRight;
 
 SDL_FRect rectangle;
 
-#define SIZE 10000
+#define SIZE 100000
 #define SPAWN_SIZE 20000
 
-class Entity {
-    int entityTexture;
-    float xEntity;
-    float yEntity;
-};
+
 
 
 
@@ -105,7 +107,7 @@ void updatePos(){
     runLeft = 0;
 
 
-
+    
     for (int i = 0; i < SIZE; i++) {
 
         if (entityDestroy[i]) {
@@ -273,8 +275,9 @@ void renderPlayer(struct Complex_textures localObjectTexture, float scalingFacto
     
     SDL_FRect localObject;
     //(screen dimension/screen scaling) - textureWidth + texturecalingFactor
-    localObject.x = (float)((w/ scale) - localObjectTexture.texture_width * playerSize) / 2 ;
-    localObject.y = (float)((h/ scale) - localObjectTexture.texture_height * playerSize) / 2 ;
+    localObject.x = playerPosX;
+    localObject.y = playerPosY;
+    
     //printf(" \n player x:%f player y:%f \n", localObject.x, localObject.y);
     localObject.w = (float)localObjectTexture.texture_width * playerSize;
     localObject.h = (float)localObjectTexture.texture_height * playerSize;
@@ -293,7 +296,7 @@ SDL_AppResult SDL_AppInit(void** appstate, int argc, char* argv[])
     }
 
     //worldDef.gravity = (b2Vec2){ 0.0f, -10.0f };
-    b2WorldId worldId = b2CreateWorld(&worldDef);
+    //b2WorldId worldId = b2CreateWorld(&worldDef);
 
     
 
@@ -350,21 +353,41 @@ SDL_AppResult SDL_AppEvent(void* appstate, SDL_Event* event)
 }
 
 
-
+void changeScale(float scale) {
+    SDL_SetRenderScale(renderer, scale, scale);
+    SDL_GetRenderOutputSize(renderer, &w, &h);
+    
+    
+}
 
 
 /* This function runs once per frame, and is the heart of the program. */
 SDL_AppResult SDL_AppIterate(void* appstate)
 {
-    /*
     
-        scale = 2.0 / playerSize;
+        if(playerSize > 1.9 && playerSize<2.1 && !changedscale1){
+            scale = 1.5f;
+            changeScale(1.5f);
+            
+            changedscale1 = true;
+            
+        }
+        else if (playerSize > 6 && !changedscale2) {
+            changeScale(1.f);
+            scale = 1.f;
+            changedscale2 = true;
 
-        SDL_SetRenderScale(renderer, scale, scale);
-        SDL_GetRenderOutputSize(renderer, &w, &h);
-        playerPosY = (float)((h / scale) - textures[2].texture_height) / 2;
-        playerPosX = (float)((w / scale) - textures[2].texture_width) / 2;
-    */
+        } if (playerSize > 10 && !changedscale3) {
+            changeScale(1.f);
+            scale = 1.f;
+            changedscale3 = true;
+
+        }
+
+        playerPosY = (float)((h / scale) - textures[2].texture_height * playerSize) / 2;
+        playerPosX = (float)((w / scale) - textures[2].texture_width * playerSize) / 2;
+        
+    
     
     
 
@@ -403,8 +426,8 @@ SDL_AppResult SDL_AppIterate(void* appstate)
         
         //SDL_RenderPoint(renderer, entityCollisionBox[i].centroid.x + world.xPos, entityCollisionBox[i].centroid.y + world.yPos);
         
-        SDL_FRect a = { entityCollisionBox[i].centroid.x + entityCollisionBox[i].vertices[0].x + world.xPos, entityCollisionBox[i].centroid.y + entityCollisionBox[i].vertices[0].y + world.yPos, textures[entityTexture[i]].texture_width, textures[entityTexture[i]].texture_height };
-        SDL_RenderRect(renderer, &a);
+        //SDL_FRect a = { entityCollisionBox[i].centroid.x + entityCollisionBox[i].vertices[0].x + world.xPos, entityCollisionBox[i].centroid.y + entityCollisionBox[i].vertices[0].y + world.yPos, textures[entityTexture[i]].texture_width, textures[entityTexture[i]].texture_height };
+        //SDL_RenderRect(renderer, &a);
         
         
         
@@ -432,10 +455,11 @@ SDL_AppResult SDL_AppIterate(void* appstate)
     //std::cout << "X:" << playerCollisionBox.vertices[0].x << " Y:" << playerCollisionBox.vertices[0].y << std::endl;
 
     SDL_RenderPoint(renderer, playerCollisionBox.centroid.x, playerCollisionBox.centroid.y);
-
+    /*
     for (int i = 0; i < 4; i++) {
         SDL_RenderPoint(renderer, playerCollisionBox.centroid.x + playerCollisionBox.vertices[i].x * playerSize, playerCollisionBox.centroid.y + playerCollisionBox.vertices[i].y * playerSize);
     }
+    */
 
     
 
@@ -445,10 +469,11 @@ SDL_AppResult SDL_AppIterate(void* appstate)
 
     
 
-    Uint32 endTicks = SDL_GetTicks();
+    Uint64 endTicks = SDL_GetTicks();
     Uint64 endPerf = SDL_GetPerformanceCounter();
+
     Uint64 framePerf = endPerf - startPerf;
-    float frameTime = (endTicks - startTicks) / 500.0f;
+    float frameTime = (endTicks - startTicks) / 1000.0f;
     
     if (totalFrameTicks > 1000.0f) {
         lastframeavg = (1000.0f / ((float)totalFrameTicks / totalSecondFrames));
@@ -472,7 +497,7 @@ SDL_AppResult SDL_AppIterate(void* appstate)
         SDL_asprintf(&avg, "Average FPS: %f", (float)lastframeavg);
     }
     else {
-        SDL_asprintf(&avg, "Average FPS: %f", (500.0f / ((float)totalFrameTicks / totalSecondFrames)));
+        SDL_asprintf(&avg, "Average FPS: %f", (1000.0f / ((float)totalFrameTicks / totalSecondFrames)));
     }
 
 
